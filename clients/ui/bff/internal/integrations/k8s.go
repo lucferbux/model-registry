@@ -3,11 +3,12 @@ package integrations
 import (
 	"context"
 	"fmt"
-	"k8s.io/api/core/v1"
+	"log/slog"
+
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"log/slog"
 )
 
 type KubernetesClientInterface interface {
@@ -19,6 +20,7 @@ type KubernetesClientInterface interface {
 
 type ServiceDetails struct {
 	Name        string
+	Annotations map[string]string
 	DisplayName string
 	Description string
 	ClusterIP   string
@@ -57,7 +59,7 @@ func NewKubernetesClient(logger *slog.Logger) (KubernetesClientInterface, error)
 		return nil, fmt.Errorf("failed to create Kubernetes clientset: %w", err)
 	}
 	//fetching services
-	services, err := clientSet.CoreV1().Services(namespace).List(context.TODO(), metav1.ListOptions{})
+	services, err := clientSet.CoreV1().Services("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list model-registry-server services: %w", err)
 	}
@@ -103,9 +105,10 @@ func buildModelRegistryServiceCache(logger *slog.Logger, services v1.ServiceList
 			//TODO (acreasy) DisplayName and Description need to be included and not given a zero value once we
 			// know how this will be implemented.
 			serviceCache[service.Name] = ServiceDetails{
-				Name:      service.Name,
-				ClusterIP: service.Spec.ClusterIP,
-				HTTPPort:  httpPort,
+				Name:        service.Name,
+				Annotations: service.Annotations,
+				ClusterIP:   service.Spec.ClusterIP,
+				HTTPPort:    httpPort,
 			}
 		}
 	}
@@ -134,8 +137,8 @@ func (kc *KubernetesClient) GetServiceDetails() ([]ServiceDetails, error) {
 		if service.Name != "" {
 			services = append(services, ServiceDetails{
 				Name:        service.Name,
-				DisplayName: service.DisplayName,
-				Description: service.Description,
+				DisplayName: service.Annotations["displayName"],
+				Description: service.Annotations["description"],
 			})
 		}
 	}

@@ -3,10 +3,11 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/kubeflow/model-registry/ui/bff/internal/integrations"
 	"k8s.io/client-go/rest"
-	"net/http"
 )
 
 type contextKey string
@@ -82,9 +83,12 @@ func resolveBearerToken(k8s integrations.KubernetesClientInterface) (string, err
 
 func resolveModelRegistryURL(id string, client integrations.KubernetesClientInterface) (string, error) {
 	serviceDetails, err := client.GetServiceDetailsByName(id)
+
+	// TODO: We need a proper dev mode here to point at localhost
 	if err != nil {
 		return "", err
 	}
-	url := fmt.Sprintf("http://%s:%d/api/model_registry/v1alpha3", serviceDetails.ClusterIP, serviceDetails.HTTPPort)
+	// if dev mode ip is localhost
+	url := fmt.Sprintf("http://%s:%d/api/model_registry/v1alpha3", "localhost", serviceDetails.HTTPPort) // TODO: changed here to localhost to test in development
 	return url, nil
 }
