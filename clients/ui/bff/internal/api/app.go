@@ -3,11 +3,12 @@ package api
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"net/http"
+
 	"github.com/kubeflow/model-registry/ui/bff/internal/config"
 	"github.com/kubeflow/model-registry/ui/bff/internal/integrations"
 	"github.com/kubeflow/model-registry/ui/bff/internal/repositories"
-	"log/slog"
-	"net/http"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/kubeflow/model-registry/ui/bff/internal/mocks"
@@ -107,7 +108,7 @@ func (app *App) Routes() http.Handler {
 	// Kubernetes client routes
 	router.GET(UserPath, app.UserHandler)
 	router.GET(ModelRegistryListPath, app.ModelRegistryHandler)
-	if app.config.DevMode {
+	if app.config.StandaloneMode {
 		router.GET(NamespaceListPath, app.GetNamespacesHandler)
 	}
 

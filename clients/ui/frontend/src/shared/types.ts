@@ -13,6 +13,10 @@ export type CommonConfig = {
   featureFlags: FeatureFlag;
 };
 
+export type Namespace = {
+  name: string;
+};
+
 export type FeatureFlag = {
   modelRegistry: boolean;
 };

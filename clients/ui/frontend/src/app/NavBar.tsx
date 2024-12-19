@@ -13,23 +13,33 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from '@patternfly/react-core';
+import { useNavigate } from 'react-router-dom';
 import { SimpleSelect, SimpleSelectOption } from '@patternfly/react-templates';
+import { useDeepCompareMemoize } from '~/shared/utilities/useDeepCompareMemoize';
 
 interface NavBarProps {
   username?: string;
   onLogout: () => void;
+  options: SimpleSelectOption[];
+  onNamespaceSelect?: (namespace: string) => void;
 }
 
-const Options: SimpleSelectOption[] = [{ content: 'All Namespaces', value: 'All' }];
-
-const NavBar: React.FC<NavBarProps> = ({ username, onLogout }) => {
-  const [selected, setSelected] = React.useState<string | undefined>('All');
+const NavBar: React.FC<NavBarProps> = ({ username, onLogout, options, onNamespaceSelect }) => {
+  const [selected, setSelected] = React.useState<string | undefined>(String(options[0]?.value));
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
+  const optionsMemo = useDeepCompareMemoize(options);
+  const navigate = useNavigate();
 
   const initialOptions = React.useMemo<SimpleSelectOption[]>(
-    () => Options.map((o) => ({ ...o, selected: o.value === selected })),
-    [selected],
+    () => optionsMemo.map((o) => ({ ...o, selected: o.value === selected })),
+    [selected, optionsMemo],
   );
+
+  React.useEffect(() => {
+    if (selected) {
+      navigate(`?namespace=${selected}`);
+    }
+  }, [selected, navigate]);
 
   const handleLogout = () => {
     setUserMenuOpen(false);
@@ -51,9 +61,13 @@ const NavBar: React.FC<NavBarProps> = ({ username, onLogout }) => {
             <ToolbarGroup variant="action-group-plain" align={{ default: 'alignStart' }}>
               <ToolbarItem>
                 <SimpleSelect
-                  isDisabled
                   initialOptions={initialOptions}
-                  onSelect={(_ev, selection) => setSelected(String(selection))}
+                  onSelect={(_ev, selection) => {
+                    setSelected(String(selection));
+                    if (onNamespaceSelect) {
+                      onNamespaceSelect(String(selection));
+                    }
+                  }}
                 />
               </ToolbarItem>
             </ToolbarGroup>

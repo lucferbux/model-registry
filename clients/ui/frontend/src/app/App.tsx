@@ -13,7 +13,7 @@ import {
 } from '@patternfly/react-core';
 import ToastNotifications from '~/shared/components/ToastNotifications';
 import { useSettings } from '~/shared/hooks/useSettings';
-import { isMUITheme, Theme, AUTH_HEADER, DEV_MODE } from '~/shared/utilities/const';
+import { isMUITheme, Theme, AUTH_HEADER, MOCK_AUTH } from '~/shared/utilities/const';
 import { logout } from '~/shared/utilities/appUtils';
 import NavSidebar from './NavSidebar';
 import AppRoutes from './AppRoutes';
@@ -25,11 +25,17 @@ const App: React.FC = () => {
   const {
     configSettings,
     userSettings,
+    namespaceSettings,
     loaded: configLoaded,
     loadError: configError,
   } = useSettings();
 
   const username = userSettings?.userId;
+  const options =
+    namespaceSettings?.map((namespace) => ({
+      content: namespace.name,
+      value: namespace.name,
+    })) || [];
 
   React.useEffect(() => {
     // Apply the theme based on the value of STYLE_THEME
@@ -41,7 +47,7 @@ const App: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (DEV_MODE && username) {
+    if (MOCK_AUTH && username) {
       localStorage.setItem(AUTH_HEADER, username);
     } else {
       localStorage.removeItem(AUTH_HEADER);
@@ -103,6 +109,7 @@ const App: React.FC = () => {
             onLogout={() => {
               logout().then(() => window.location.reload());
             }}
+            options={options}
           />
         }
         isManagedSidebar
