@@ -33,27 +33,24 @@ else
     kubectl get pods -n kubeflow
 fi
 
-pushd  ./manifests/base
-kustomize edit set namespace kubeflow
-kustomize edit set image model-registry-ui-image=${IMG_FRONTEND}
-kustomize edit set image model-registry-bff-image=${IMG_BFF}
+# Step 4: Build Model Registry and push in standalone mode
+echo "Building Model Registry UI..."
+make docker-build-standalone
+make docker-push-standalone
 
+echo "Editing kustomize image..."
+pushd  ./manifests/base
+kustomize edit set image model-registry-ui-image=${IMG_UI_STANDALONE}
+
+pushd  ../overlays/standalone
 # Step 4: Deploy model registry UI
 echo "Deploying Model Registry UI..."
+kustomize edit set namespace kubeflow
 kubectl apply -n kubeflow -k .
 
 # Wait for deployment to be available
 echo "Waiting Model Registry UI to be available..."
 kubectl wait --for=condition=available -n kubeflow deployment/model-registry-ui --timeout=1m
-
-pushd  ../user-rbac
-# Step 5: Apply admin user service account in the cluster
-echo "Applying admin user service account and rolebinding..."
-kubectl apply -k .
-
-# Step 6: Generate token for admin user and display it
-echo "In your browser, you will need to inject your requests with a kubeflow-userid header for authorization purposes."
-echo "For example, you can use the Header Editor - https://chromewebstore.google.com/detail/eningockdidmgiojffjmkdblpjocbhgh extension in Chrome to set the kubeflow-userid header to user@example.com."
 
 # Step 5: Port-forward the service
 echo "Port-forwarding Model Registry UI..."

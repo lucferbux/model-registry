@@ -1,11 +1,11 @@
-# Development Guide
+# Local Deployment Guide
 
 ## Local kubernetes deployment of Model Registry
 To test the BFF locally without mocking the k8s calls the Model Registry backend can be deployed locally using kind.
 
 ### Prerequisites 
 The following tools need to be installed in your local environment:
-* Podman (Docker should also work) - [Podman Desktop Instructions](https://podman-desktop.io)
+* Docker - [Docker Instructions](https://www.docker.com)
 * kubectl - [Instructions](https://kubernetes.io/docs/tasks/tools/#kubectl)
 * kind - [Instructions](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
 
