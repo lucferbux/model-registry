@@ -1,5 +1,6 @@
 name: Build and Push UI and BFF Images
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'main'
