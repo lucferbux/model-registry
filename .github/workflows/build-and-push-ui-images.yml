@@ -8,7 +8,7 @@ on:
     paths:
       - 'clients/ui/**'
 env:
-  IMG_ORG: kubeflow
+  IMG_ORG: lucferbux
   IMG_UI_REPO: model-registry-ui
   DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKER_PWD: ${{ secrets.DOCKERHUB_TOKEN }}
