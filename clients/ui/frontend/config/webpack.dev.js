@@ -59,6 +59,8 @@ module.exports = smp.wrap(
               protocol: PROXY_PROTOCOL,
               port: PROXY_PORT,
             },
+            timeout: 60000, // 60 seconds timeout
+            proxyTimeout: 60000,
             changeOrigin: true,
             ...(DEPLOYMENT_MODE === 'standalone' && {
               headers: {
